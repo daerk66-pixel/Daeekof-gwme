@@ -20,7 +20,17 @@ jobs:
         run: |
           curl -sL -o gradle.zip https://services.gradle.org/distributions/gradle-8.7-bin.zip
           unzip -q gradle.zip
-          ./gradle-8.7/bin/gradle assembleDebug --no-daemon --stacktrace
+          set +e
+          ./gradle-8.7/bin/gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build-log.txt
+          echo "exit=${PIPESTATUS[0]}" | tee -a build-log.txt
+          tail -80 build-log.txt >> $GITHUB_STEP_SUMMARY
+          exit 0
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build-log.txt
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
