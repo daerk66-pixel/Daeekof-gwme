@@ -23,7 +23,7 @@ jobs:
           set +e
           ./gradle-8.7/bin/gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build-log.txt
           echo "exit=${PIPESTATUS[0]}" | tee -a build-log.txt
-          tail -80 build-log.txt >> $GITHUB_STEP_SUMMARY
+          grep -iE "FAILURE:|error:|Could not|What went wrong" -A4 build-log.txt | head -40 | while read -r l; do echo "::error::$l"; done
           exit 0
 
       - name: Upload build log
